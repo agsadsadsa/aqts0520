@@ -1,0 +1,266 @@
+<!DOCTYPE html> <!-- 声明文档类型为 HTML5，确保浏览器正确解析 -->
+<html lang="en"> <!-- HTML 根元素，设置语言为英语 -->
+<head>
+    <meta charset="UTF-8"> <!-- 设置字符编码为 UTF-8，支持多语言字符 -->
+    <title>WebCatalog Desktop 使用说明</title> <!-- 设置页面标题，显示在浏览器标签页 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- 引入 jQuery 3.6.0 库，用于 DOM 操作和事件处理 -->
+    <style>
+        html, body { /* 为 html 和 body 元素设置样式 */
+            margin: 0; /* 移除默认外边距 */
+            padding: 0; /* 移除默认内边距 */
+            background: #000; /* 设置页面背景色为黑色 */
+            color: #fff; /* 设置文本颜色为白色，确保对比度 */
+            font-family: Arial, sans-serif; /* 设置字体为 Arial，若不可用则使用 sans-serif */
+            overflow-x: hidden; /* 禁止水平滚动 */
+        }
+        canvas { /* 为 canvas 元素设置样式 */
+            position: fixed; /* 固定定位，使 canvas 始终停留在视口，不随滚动移动 */
+            top: 0; /* 定位到视口顶部 */
+            left: 0; /* 定位到视口左侧 */
+            width: 100%; /* 设置宽度为视口全宽 */
+            height: 100vh; /* 设置高度为视口全高 */
+            z-index: 1; /* 设置层级为 1，确保 canvas 在内容下方 */
+        }
+        .content { /* 为主要内容容器设置样式 */
+            position: relative; /* 相对定位，与固定定位的 canvas 正确交互 */
+            z-index: 2; /* 设置层级为 2，置于 canvas 上方 */
+            width: 80%; /* 设置宽度为视口的 80% */
+            max-width: 920px; /* 限制最大宽度为 1200 像素 */
+            margin: 0 auto; /* 水平居中 */
+            padding: 20px; /* 添加 20 像素内边距 */
+            background: rgba(0, 0, 0, 0.7); /* 设置半透明黑色背景以提高可读性 */
+            border-radius: 8px; /* 添加 8 像素圆角 */
+        }
+        .header { /* 为头部区域设置样式 */
+            display: flex; /* 使用 flex 布局排列子元素 */
+            align-items: center; /* 垂直居中对齐子元素 */
+            padding: 20px; /* 添加 20 像素内边距 */
+            background: #111; /* 设置深灰色背景 */
+            border-radius: 8px; /* 添加 8 像素圆角 */
+            margin-bottom: 20px; /* 添加 20 像素下外边距 */
+        }
+        .header img { /* 为头部图片设置样式 */
+            width: 40%; /* 设置宽度为头部容器的 40% */
+            height: auto; /* 高度自动调整以保持比例 */
+            object-fit: cover; /* 图片填充容器，裁剪多余部分 */
+            border-radius: 8px; /* 添加 8 像素圆角 */
+            margin-right: 20px; /* 添加右外边距以与文本分隔 */
+        }
+        .header .intro { /* 为头部简介区域设置样式 */
+            width: 60%; /* 设置宽度为头部容器的 60% */
+            padding: 10px; /* 添加 10 像素内边距 */
+        }
+        .header .intro h1 { /* 为简介标题设置样式 */
+            font-size: 24px; /* 设置字体大小为 24 像素 */
+            margin-bottom: 10px; /* 添加 10 像素下外边距 */
+        }
+        .header .intro p { /* 为简介段落设置样式 */
+            font-size: 16px; /* 设置字体大小为 16 像素 */
+            line-height: 1.5; /* 设置行高为 1.5 倍，提高可读性 */
+        }
+        .header .intro a { /* 为简介中的链接设置样式 */
+            color: #1e90ff; /* 设置链接颜色为蓝色 */
+            text-decoration: none; /* 移除默认下划线 */
+        }
+        .header .intro a:hover { /* 为链接悬停状态设置样式 */
+            text-decoration: underline; /* 鼠标悬停时添加下划线 */
+        }
+        .tutorials { /* 为教程区域设置样式 */
+            padding: 20px; /* 添加 20 像素内边距 */
+            background: #111; /* 设置深灰色背景 */
+            border-radius: 8px; /* 添加 8 像素圆角 */
+            margin-bottom: 20px; /* 添加 20 像素下外边距 */
+        }
+        .tutorial-section { /* 为每个教程部分设置样式 */
+            margin-bottom: 40px; /* 添加 40 像素下外边距 */
+        }
+        .tutorial-section h2 { /* 为教程标题设置样式 */
+            font-size: 20px; /* 设置字体大小为 20 像素 */
+            margin-bottom: 10px; /* 添加 10 像素下外边距 */
+        }
+        .tutorial-section p { /* 为教程描述设置样式 */
+            font-size: 16px; /* 设置字体大小为 16 像素 */
+            margin-bottom: 10px; /* 添加 10 像素下外边距 */
+            line-height: 1.5; /* 设置行高为 1.5 倍 */
+        }
+        .tutorial-section iframe { /* 为教程视频 iframe 设置样式 */
+            width: 100%; /* 设置宽度为容器全宽 */
+            height: 400px; /* 设置固定高度为 400 像素 */
+            border: none; /* 移除边框 */
+            border-radius: 8px; /* 添加 8 像素圆角 */
+        }
+        .footer { /* 为底部区域设置样式 */
+            padding: 20px; /* 添加 20 像素内边距 */
+            background: #111; /* 设置深灰色背景 */
+            text-align: center; /* 文本居中对齐 */
+            border-radius: 8px; /* 添加 8 像素圆角 */
+        }
+        .footer p { /* 为底部段落设置样式 */
+            font-size: 16px; /* 设置字体大小为 16 像素 */
+            line-height: 1.5; /* 设置行高为 1.5 倍 */
+        }
+        .footer a { /* 为底部链接设置样式 */
+            color: #1e90ff; /* 设置链接颜色为蓝色 */
+            text-decoration: none; /* 移除默认下划线 */
+        }
+        .footer a:hover { /* 为底部链接悬停状态设置样式 */
+            text-decoration: underline; /* 鼠标悬停时添加下划线 */
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas> <!-- 定义 canvas 元素，用于绘制粒子动画，ID 为 'canvas' -->
+    <div class="content"> <!-- 主要内容容器，包含头部、教程和底部 -->
+        <div class="header"> <!-- 头部区域，包含图片和简介 -->
+            <img src="lb.png" alt="Particle Animation Screenshot"> <!-- 占位图片，显示粒子动画截图 -->
+            <div class="intro"> <!-- 头部简介容器 -->
+                <h1>WebCatalog Desktop 使用说明</h1> <!-- 标题，介绍粒子动画 -->
+                <p>
+                    <h3>⚡我们在Windows系统上直接登录使用Teams的时候，注销账号会出现不能完全退出账号的情况，直接点账号的登录记录就可以直接登录上了，这样会有些不安全。特别是和外邦人一起居住的弟兄姊妹，在这种情况下使用Teams有一定的几率出现安全隐患。<br>✅这个软件注销Teams不会有记录，这种背景下登录使用会比较安全。
+					<br>☣️WebCatalog免费版的支持同时登录2个Teams账号，想使用多开的，可以使用这个软件。</h3>
+					① 打开这个链接下载软件：<a href="https://webcatalog.io/zh-CN/desktop" target="_blank">下载 WebCatalog</a>
+					<br>② 打开邮箱界面，接收验证码，可以输入自己的Teams账号密码登录邮箱进行接受验证码：<a href="https://outlook.live.com/mail/0/" target="_blank">outlook 邮箱登录</a>.
+                </p> <!-- 简介文本，包含两个外部链接 -->
+            </div>
+        </div>
+
+        <div class="tutorials"> <!-- 教程区域，包含四个视频教程 -->
+            <div class="tutorial-section"> <!-- 第一个教程部分 -->
+                <h2>一、软件的下载 安装 注册</h2> <!-- 教程标题 -->
+                <p>这部分介绍了，软件下载 安装 注册的部分，如果按前面一部分操作注册的时候无法正常注册，出现报错，可以参考后面部分补充的注册步骤。</p> <!-- 教程描述 -->
+                <iframe src="https://www.youtube.com/embed/lC0SRJT3Hpc" allowfullscreen></iframe> <!-- 嵌入 YouTube 视频 -->
+            </div>
+            <div class="tutorial-section"> <!-- 第二个教程部分 -->
+                <h2>二、软件登录Teams(大、小号)这部分的介绍</h2> <!-- 教程标题 -->
+                <p>第一次登录的时候界面可能会有些卡住，关闭后重新打开Teams后就可以正常输入Teams的账号密码。视频也介绍了怎么登录2个Teams账号，也就是登录大小号。图标可以固定在任务栏方便使用。</p> <!-- 教程描述 -->
+                <iframe src="https://www.youtube.com/embed/hUV5DvJxXKE" allowfullscreen></iframe> <!-- 嵌入 YouTube 视频 -->
+            </div>
+            <div class="tutorial-section"> <!-- 第三个教程部分 -->
+                <h2>三、使用这个软件进行通话的时候的一些说明介绍</h2> <!-- 教程标题 -->
+                <p>和系统上的Teams的通话提醒有些区别</p> <!-- 教程描述 -->
+                <iframe src="https://www.youtube.com/embed/vDczp5-_daY" allowfullscreen></iframe> <!-- 嵌入 YouTube 视频 -->
+            </div>
+            <div class="tutorial-section"> <!-- 第四个教程部分 -->
+                <h2>四、软件 注销、登出方面的介绍</h2> <!-- 教程标题 -->
+                <p>需要注意的就是不要把 WebCatalog 这个软件给注销了，而是注销Teams的账号。</p> <!-- 教程描述 -->
+                <iframe src="https://www.youtube.com/embed/FGykGygSDZU" allowfullscreen></iframe> <!-- 嵌入 YouTube 视频 -->
+            </div>
+        </div>
+
+        <div class="footer"> <!-- 底部区域，包含进一步学习的链接 -->
+            <p>
+                相关文档内容： <a href="https://www.codecademy.com/learn/paths/web-development" target="_blank">Codecademy's Web Development Path</a> <br>阅读其他内容： <a href="https://www.freecodecamp.org/learn/" target="_blank">freeCodeCamp</a>.
+            </p> <!-- 底部文本，包含两个外部学习资源链接 -->
+        </div>
+    </div>
+
+    <script>
+        $(function() { // jQuery 文档就绪函数，确保 DOM 加载完成后执行
+            const canvas = document.getElementById('canvas'); // 获取 canvas 元素
+            const ctx = canvas.getContext('2d'); // 获取 2D 渲染上下文
+            let width, height; // 定义画布宽度和高度变量
+
+            function resizeCanvas() { // 定义调整画布大小的函数
+                width = window.innerWidth; // 设置画布宽度为窗口宽度
+                height = window.innerHeight; // 设置画布高度为窗口高度
+                canvas.width = width; // 更新 canvas 的宽度属性
+                canvas.height = height; // 更新 canvas 的高度属性
+            }
+
+            resizeCanvas(); // 初次调用调整画布大小
+            window.addEventListener('resize', resizeCanvas); // 监听窗口大小变化，调用 resizeCanvas
+
+            let mouse = { x: width * 0.5, y: height * 0.5 }; // 初始化鼠标位置为中心
+            const particles = []; // 定义粒子数组
+            const config = { // 定义粒子动画配置对象
+                count: 600, // 粒子数量
+                maxDistance: 60, // 粒子连接的最大距离
+                mouseRadius: 120 // 鼠标影响半径
+            };
+
+            class Particle { // 定义粒子类
+                constructor() { // 构造函数，初始化粒子属性
+                    this.x = Math.random() * width; // 随机 x 坐标
+                    this.y = Math.random() * height; // 随机 y 坐标
+                    this.vx = (Math.random() - 0.5) * 0.8; // 随机 x 方向速度
+                    this.vy = (Math.random() - 0.5) * 0.8; // 随机 y 方向速度
+                    this.radius = Math.random() * 1.5 + 0.5; // 随机半径（0.5 到 2）
+                    this.color = `rgba(${Math.floor(Math.random() * 100 + 155)}, ${Math.floor(Math.random() * 100 + 155)}, ${Math.floor(Math.random() * 100 + 155)}, 0.7)`; // 随机颜色，带透明度
+                }
+
+                move() { // 更新粒子位置
+                    this.x += this.vx; // 根据 x 速度更新 x 坐标
+                    this.y += this.vy; // 根据 y 速度更新 y 坐标
+
+                    if (this.x < 0 || this.x > width) this.vx = -this.vx; // 碰到左右边界反转 x 速度
+                    if (this.y < 0 || this.y > height) this.vy = -this.vy; // 碰到上下边界反转 y 速度
+                }
+
+                draw() { // 绘制粒子
+                    ctx.beginPath(); // 开始新的绘制路径
+                    ctx.fillStyle = this.color; // 设置填充颜色
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); // 绘制圆形粒子
+                    ctx.fill(); // 填充圆形
+                }
+            }
+
+            function initParticles() { // 初始化粒子数组
+                particles.length = 0; // 清空粒子数组
+                for (let i = 0; i < config.count; i++) { // 创建指定数量的粒子
+                    particles.push(new Particle()); // 添加新粒子到数组
+                }
+            }
+
+            function connectParticles() { // 绘制粒子之间的连接线
+                for (let i = 0; i < particles.length; i++) { // 遍历所有粒子
+                    for (let j = i + 1; j < particles.length; j++) { // 遍历后续粒子，避免重复
+                        const p1 = particles[i]; // 获取第一个粒子
+                        const p2 = particles[j]; // 获取第二个粒子
+                        const dx = p1.x - p2.x; // 计算 x 轴距离
+                        const dy = p1.y - p2.y; // 计算 y 轴距离
+                        const distance = Math.sqrt(dx * dx + dy * dy); // 计算两粒子间距离
+
+                        if (distance < config.maxDistance) { // 如果距离小于最大连接距离
+                            const mouseDx = p1.x - mouse.x; // 计算粒子到鼠标的 x 距离
+                            const mouseDy = p1.y - mouse.y; // 计算粒子到鼠标的 y 距离
+                            const mouseDistance = Math.sqrt(mouseDx * mouseDx + mouseDy * mouseDy); // 计算粒子到鼠标的距离
+
+                            if (mouseDistance < config.mouseRadius) { // 如果粒子在鼠标影响范围内
+                                ctx.beginPath(); // 开始新路径
+                                ctx.strokeStyle = `rgba(255, 255, 255, ${1 - distance / config.maxDistance})`; // 设置连接线颜色，透明度随距离变化
+                                ctx.lineWidth = 0.2; // 设置线条宽度
+                                ctx.moveTo(p1.x, p1.y); // 设置线条起点
+                                ctx.lineTo(p2.x, p2.y); // 设置线条终点
+                                ctx.stroke(); // 绘制线条
+                            }
+                        }
+                    }
+                }
+            }
+
+            function animate() { // 动画主循环
+                ctx.clearRect(0, 0, width, height); // 清空画布
+                particles.forEach(p => { // 遍历所有粒子
+                    p.move(); // 更新粒子位置
+                    p.draw(); // 绘制粒子
+                });
+                connectParticles(); // 绘制连接线
+                requestAnimationFrame(animate); // 请求下一帧动画
+            }
+
+            $(canvas).on('mousemove', e => { // 监听 canvas 鼠标移动事件
+                mouse.x = e.clientX; // 更新鼠标 x 坐标
+                mouse.y = e.clientY; // 更新鼠标 y 坐标
+            });
+
+            $(canvas).on('mouseleave', () => { // 监听鼠标离开 canvas 事件
+                mouse.x = width * 0.5; // 鼠标离开时重置 x 坐标为中心
+                mouse.y = height * 0.5; // 鼠标离开时重置 y 坐标为中心
+            });
+
+            initParticles(); // 初始化粒子
+            animate(); // 启动动画循环
+        });
+    </script>
+</body>
+</html>
